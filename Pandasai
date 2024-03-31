@@ -1,0 +1,26 @@
+import pandas as pd
+from pandasai import SmartDataframe
+from pandasai import SmartDatalake
+import os
+from pandasai.llm.azure_openai import AzureOpenAI
+from pandasai.responses.streamlit_response import StreamlitResponse
+api_key = os.getenv("OPENAI_API_KEY")
+azure_endpoint = os.getenv("OPENAI_ENDPOINT")
+api_version = os.getenv("OPENAI_API_VERSION")
+
+llm = AzureOpenAI(
+    model=os.getenv("OPENAI_MODEL"),
+    deployment_name=os.getenv("OPENAI_STRUCT_DEPLOYMENT"),
+    api_token=api_key,
+    azure_endpoint=azure_endpoint,
+    api_version=api_version,
+    temperature=0.2,
+    is_chat_model=True,
+    # prompt = """You are an expert data analyst and Data Scientist analysing the job market, 
+    #         whenver use asks qustions give them the correct data and do not give wrong data, 
+    #         please nalyse what type of question use is asking , give plots only when they 
+    #         ask you to do so"""
+)
+df = pd.read_csv(r'C:\Users\deekshith.p\Desktop\Job_Dataset.csv', encoding='utf-8')
+sdf = SmartDataframe(df, config={"llm": llm})
+sdf.chat("Question")
