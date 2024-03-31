@@ -1,0 +1,36 @@
+import pandas as pd
+
+df = pd.read_csv(r'C:\Users\deekshith.p\Desktop\Job_Dataset.csv', encoding='utf-8')
+print(df.shape)
+print(df.columns.tolist()) 
+from langchain_community.utilities import SQLDatabase    
+from sqlalchemy import create_engine
+import os
+engine = create_engine("sqlite:///Job_Dataset.db")          
+df.to_sql("Job_Dataset", engine, index=False)                                         
+db = SQLDatabase(engine=engine)
+print(db.dialect)
+print(db.get_usable_table_names())
+# db.run("SELECT * FROM Job_Dataset where Country = 'Netherlands' ")                
+from langchain_community.agent_toolkits import create_sql_agent
+from langchain_openai import AzureChatOpenAI
+
+api_key = os.getenv("OPENAI_API_KEY")
+azure_endpoint = os.getenv("OPENAI_ENDPOINT")
+api_version = os.getenv("OPENAI_API_VERSION")
+
+llm = AzureChatOpenAI(
+    model=os.getenv("OPENAI_MODEL"),
+    azure_deployment=os.getenv("OPENAI_STRUCT_DEPLOYMENT"),
+    api_key=api_key,
+    azure_endpoint=azure_endpoint,
+    api_version=api_version,
+    temperature=0.5,
+)
+agent_executor = create_sql_agent(llm, db=db, agent_type="openai-tools", verbose=True)
+agent_executor.invoke({"input": "which job has the highest salary in USA?"})            
+
+SELECT [Job Title], [Maximum Salary] 
+FROM Job_Dataset 
+ORDER BY [Maximum Salary] DESC 
+LIMIT 1;
