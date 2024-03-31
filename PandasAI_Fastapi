@@ -1,0 +1,87 @@
+from fastapi import FastAPI, Request, Form
+from fastapi.templating import Jinja2Templates
+import pandas as pd
+from pandasai import SmartDataframe
+from pandasai.llm.azure_openai import AzureOpenAI
+
+app = FastAPI()
+templates = Jinja2Templates(directory="templates")
+
+api_key = "your_openai_api_key_here"  # Replace with your OpenAI API key
+azure_endpoint = "your_azure_endpoint_here"  # Replace with your Azure endpoint
+api_version = "your_openai_api_version_here"  # Replace with your OpenAI API version
+
+llm = AzureOpenAI(
+    model="your_openai_model_here",
+    deployment_name="your_openai_struct_deployment_here",
+    api_token=api_key,
+    azure_endpoint=azure_endpoint,
+    api_version=api_version,
+    temperature=0.2,
+    is_chat_model=True
+)
+
+df = pd.read_csv('Job_Dataset.csv', encoding='utf-8')
+sdf = SmartDataframe(df, config={"llm": llm})
+
+
+@app.get("/")
+async def home(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
+
+
+@app.post("/ask/")
+async def ask_question(request: Request, question: str = Form(...)):
+    response = sdf.chat(question)
+    return templates.TemplateResponse("index.html", {"request": request, "response": response})
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Job Dataset Analysis</title>
+</head>
+<body>
+    <h1>Ask a Question</h1>
+    <form action="/ask/" method="post">
+        <input type="text" name="question" placeholder="Type your question here...">
+        <button type="submit">Ask</button>
+    </form>
+    {% if response %}
+    <h2>Response:</h2>
+    <p>{{ response }}</p>
+    {% endif %}
+</body>
+</html>
