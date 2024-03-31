@@ -34,3 +34,180 @@ SELECT [Job Title], [Maximum Salary]
 FROM Job_Dataset 
 ORDER BY [Maximum Salary] DESC 
 LIMIT 1;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+sqlite
+['Job_Dataset']
+80
+(80, 17)
+['Date', 'Job Title', 'Company', 'Location', 'Country', 'Experience Level', 'Skills Required', 'Education Requirements', 'Minimum Salary', 'Maximum Salary', 'Avearge Salary', 'Salary_Currency', 'Average_Salary_USD', 'Employment Type', 'Remote Work Option', 'Benefits and Perks', 'Job Description']
+
+
+> Entering new SQL Agent Executor chain...
+
+Invoking: `sql_db_list_tables` with `{}`
+
+
+---------------------------------------------------------------------------
+ValidationError                           Traceback (most recent call last)
+Cell In[15], line 1
+----> 1 agent_executor.invoke({"input": "which job has the highest salary in USA?"})            
+
+File c:\Users\deekshith.p\Job_Data_Analysis\.venv\lib\site-packages\langchain\chains\base.py:163, in Chain.invoke(self, input, config, **kwargs)
+    161 except BaseException as e:
+    162     run_manager.on_chain_error(e)
+--> 163     raise e
+    164 run_manager.on_chain_end(outputs)
+    166 if include_run_info:
+
+File c:\Users\deekshith.p\Job_Data_Analysis\.venv\lib\site-packages\langchain\chains\base.py:153, in Chain.invoke(self, input, config, **kwargs)
+    150 try:
+    151     self._validate_inputs(inputs)
+    152     outputs = (
+--> 153         self._call(inputs, run_manager=run_manager)
+    154         if new_arg_supported
+    155         else self._call(inputs)
+    156     )
+    158     final_outputs: Dict[str, Any] = self.prep_outputs(
+    159         inputs, outputs, return_only_outputs
+    160     )
+    161 except BaseException as e:
+
+File c:\Users\deekshith.p\Job_Data_Analysis\.venv\lib\site-packages\langchain\agents\agent.py:1432, in AgentExecutor._call(self, inputs, run_manager)
+   1430 # We now enter the agent loop (until it returns something).
+   1431 while self._should_continue(iterations, time_elapsed):
+-> 1432     next_step_output = self._take_next_step(
+   1433         name_to_tool_map,
+   1434         color_mapping,
+   1435         inputs,
+   1436         intermediate_steps,
+   1437         run_manager=run_manager,
+   1438     )
+   1439     if isinstance(next_step_output, AgentFinish):
+   1440         return self._return(
+   1441             next_step_output, intermediate_steps, run_manager=run_manager
+   1442         )
+
+File c:\Users\deekshith.p\Job_Data_Analysis\.venv\lib\site-packages\langchain\agents\agent.py:1138, in AgentExecutor._take_next_step(self, name_to_tool_map, color_mapping, inputs, intermediate_steps, run_manager)
+   1129 def _take_next_step(
+   1130     self,
+   1131     name_to_tool_map: Dict[str, BaseTool],
+   (...)
+   1135     run_manager: Optional[CallbackManagerForChainRun] = None,
+   1136 ) -> Union[AgentFinish, List[Tuple[AgentAction, str]]]:
+   1137     return self._consume_next_step(
+-> 1138         [
+   1139             a
+   1140             for a in self._iter_next_step(
+   1141                 name_to_tool_map,
+   1142                 color_mapping,
+   1143                 inputs,
+   1144                 intermediate_steps,
+   1145                 run_manager,
+   1146             )
+   1147         ]
+   1148     )
+
+File c:\Users\deekshith.p\Job_Data_Analysis\.venv\lib\site-packages\langchain\agents\agent.py:1138, in <listcomp>(.0)
+   1129 def _take_next_step(
+   1130     self,
+   1131     name_to_tool_map: Dict[str, BaseTool],
+   (...)
+   1135     run_manager: Optional[CallbackManagerForChainRun] = None,
+   1136 ) -> Union[AgentFinish, List[Tuple[AgentAction, str]]]:
+   1137     return self._consume_next_step(
+-> 1138         [
+   1139             a
+   1140             for a in self._iter_next_step(
+   1141                 name_to_tool_map,
+   1142                 color_mapping,
+   1143                 inputs,
+   1144                 intermediate_steps,
+   1145                 run_manager,
+   1146             )
+   1147         ]
+   1148     )
+
+File c:\Users\deekshith.p\Job_Data_Analysis\.venv\lib\site-packages\langchain\agents\agent.py:1223, in AgentExecutor._iter_next_step(self, name_to_tool_map, color_mapping, inputs, intermediate_steps, run_manager)
+   1221     yield agent_action
+   1222 for agent_action in actions:
+-> 1223     yield self._perform_agent_action(
+   1224         name_to_tool_map, color_mapping, agent_action, run_manager
+   1225     )
+
+File c:\Users\deekshith.p\Job_Data_Analysis\.venv\lib\site-packages\langchain\agents\agent.py:1245, in AgentExecutor._perform_agent_action(self, name_to_tool_map, color_mapping, agent_action, run_manager)
+   1243         tool_run_kwargs["llm_prefix"] = ""
+   1244     # We then call the tool on the tool input to get an observation
+-> 1245     observation = tool.run(
+   1246         agent_action.tool_input,
+   1247         verbose=self.verbose,
+   1248         color=color,
+   1249         callbacks=run_manager.get_child() if run_manager else None,
+   1250         **tool_run_kwargs,
+   1251     )
+   1252 else:
+   1253     tool_run_kwargs = self.agent.tool_run_logging_kwargs()
+
+File c:\Users\deekshith.p\Job_Data_Analysis\.venv\lib\site-packages\langchain_core\tools.py:387, in BaseTool.run(self, tool_input, verbose, start_color, color, callbacks, tags, metadata, run_name, run_id, **kwargs)
+    385 except ValidationError as e:
+    386     if not self.handle_validation_error:
+--> 387         raise e
+    388     elif isinstance(self.handle_validation_error, bool):
+    389         observation = "Tool input validation error"
+
+File c:\Users\deekshith.p\Job_Data_Analysis\.venv\lib\site-packages\langchain_core\tools.py:378, in BaseTool.run(self, tool_input, verbose, start_color, color, callbacks, tags, metadata, run_name, run_id, **kwargs)
+    364 run_manager = callback_manager.on_tool_start(
+    365     {"name": self.name, "description": self.description},
+    366     tool_input if isinstance(tool_input, str) else str(tool_input),
+   (...)
+    375     **kwargs,
+    376 )
+    377 try:
+--> 378     parsed_input = self._parse_input(tool_input)
+    379     tool_args, tool_kwargs = self._to_args_and_kwargs(parsed_input)
+    380     observation = (
+    381         self._run(*tool_args, run_manager=run_manager, **tool_kwargs)
+    382         if new_arg_supported
+    383         else self._run(*tool_args, **tool_kwargs)
+    384     )
+
+File c:\Users\deekshith.p\Job_Data_Analysis\.venv\lib\site-packages\langchain_core\tools.py:283, in BaseTool._parse_input(self, tool_input)
+    281 else:
+    282     if input_args is not None:
+--> 283         result = input_args.parse_obj(tool_input)
+    284         return {
+    285             k: getattr(result, k)
+    286             for k, v in result.dict().items()
+    287             if k in tool_input
+    288         }
+    289 return tool_input
+
+File c:\Users\deekshith.p\Job_Data_Analysis\.venv\lib\site-packages\pydantic\v1\main.py:526, in BaseModel.parse_obj(cls, obj)
+    524         exc = TypeError(f'{cls.__name__} expected dict not {obj.__class__.__name__}')
+    525         raise ValidationError([ErrorWrapper(exc, loc=ROOT_KEY)], cls) from e
+--> 526 return cls(**obj)
+
+File c:\Users\deekshith.p\Job_Data_Analysis\.venv\lib\site-packages\pydantic\v1\main.py:341, in BaseModel.__init__(__pydantic_self__, **data)
+    339 values, fields_set, validation_error = validate_model(__pydantic_self__.__class__, data)
+    340 if validation_error:
+--> 341     raise validation_error
+    342 try:
+    343     object_setattr(__pydantic_self__, '__dict__', values)
+
+ValidationError: 1 validation error for _ListSQLDataBaseToolInput
+tool_input
+  field required (type=value_error.missing)
+
