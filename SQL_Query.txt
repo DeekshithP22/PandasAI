@@ -1,0 +1,310 @@
+Trend Analysis
+
+1) How has the number of job postings changed over time?
+
+SELECT Date, COUNT(*) AS Num_Postings
+FROM Job_Dataset
+GROUP BY Date
+ORDER BY Date;
+
+2) Are there any seasonal trends in job postings?
+
+SELECT EXTRACT(MONTH FROM Date) AS Month, EXTRACT(YEAR FROM Date) AS Year, COUNT(*) AS Num_Postings
+FROM Job_Dataset
+GROUP BY EXTRACT(MONTH FROM Date), EXTRACT(YEAR FROM Date)
+ORDER BY Year, Month;
+
+3) Which job titles are in high demand currently?
+
+SELECT Job_Title, COUNT(*) AS Num_Postings
+FROM Job_Dataset
+GROUP BY Job_Title
+ORDER BY Num_Postings DESC;
+
+4) Are there any emerging skills or experience levels sought after by employers
+
+SELECT Skills_Required, Experience_Level, COUNT(*) AS Num_Postings
+FROM Job_Dataset
+GROUP BY Skills_Required, Experience_Level
+ORDER BY Num_Postings DESC;
+
+5) what are the most commonly required skills for each job title
+
+SELECT 
+    Job_Title,
+    TRIM(UNNEST(string_to_array(Skills_Required, ','))) AS Skill,
+    COUNT(*) AS Num_Postings
+FROM 
+    Job_Dataset
+GROUP BY 
+    Job_Title, Skill
+ORDER BY 
+    Job_Title, Num_Postings DESC;
+
+6) what are the most commonly required skills for a job title
+
+SELECT 
+    TRIM(UNNEST(string_to_array(Skills_Required, ','))) AS Skill,
+    COUNT(*) AS Num_Postings
+FROM 
+    Job_Dataset
+WHERE
+    Job_Title = 'Your_Job_Title'
+GROUP BY 
+    Skill
+ORDER BY 
+    Num_Postings DESC;
+
+
+
+
+
+Geographic Analysis:
+
+Which locations have the highest concentration of job opportunities?
+
+SELECT 
+    Location,
+    COUNT(*) AS Num_Job_Opportunities
+FROM 
+    Job_Dataset
+GROUP BY 
+    Location
+ORDER BY 
+    Num_Job_Opportunities DESC;
+
+Are there any regional differences in salary levels or job preferences?
+
+SELECT 
+    Location,
+    AVG(Average_Salary_USD) AS Avg_Salary,
+    COUNT(*) AS Num_Jobs
+FROM 
+    Job_Dataset
+GROUP BY 
+    Location
+ORDER BY 
+    Avg_Salary DESC;
+
+How does the availability of remote work options vary by location?
+
+SELECT 
+    Location,
+    SUM(CASE WHEN "Remote work option" = 'Yes' THEN 1 ELSE 0 END) AS Num_Remote_Jobs,
+    COUNT(*) AS Total_Jobs
+FROM 
+    Job_Dataset
+GROUP BY 
+    Location
+ORDER BY 
+    Location;
+
+Are there any trends in job preferences based on country-specific factors?
+
+SELECT 
+    Country,
+    COUNT(*) AS Num_Jobs,
+    AVG(Average_Salary_USD) AS Avg_Salary,
+    SUM(CASE WHEN "Remote work option" = 'Yes' THEN 1 ELSE 0 END) AS Num_Remote_Jobs
+FROM 
+    Job_Dataset
+GROUP BY 
+    Country
+ORDER BY 
+    Country;
+
+
+Salary Analysis:
+
+What is the distribution of salaries across different job titles and experience levels?
+
+SELECT 
+    Job_Title,
+    Experience_Level,
+    AVG(Average_Salary_USD) AS Avg_Salary,
+    MIN(Average_Salary_USD) AS Min_Salary,
+    MAX(Average_Salary_USD) AS Max_Salary,
+    PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY Average_Salary_USD) AS Q1_Salary,
+    PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY Average_Salary_USD) AS Median_Salary,
+    PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY Average_Salary_USD) AS Q3_Salary
+FROM 
+    Job_Dataset
+GROUP BY 
+    Job_Title, Experience_Level
+ORDER BY 
+    Job_Title, Experience_Level;
+
+Are there any outliers or discrepancies in salary data that require further investigation?
+
+WITH SalaryStats AS (
+    SELECT 
+        Job_Title,
+        Experience_Level,
+        Average_Salary_USD,
+        AVG(Average_Salary_USD) OVER (PARTITION BY Job_Title, Experience_Level) AS Avg_Salary,
+        STDDEV(Average_Salary_USD) OVER (PARTITION BY Job_Title, Experience_Level) AS StdDev_Salary
+    FROM 
+        Job_Dataset
+)
+SELECT 
+    Job_Title,
+    Experience_Level,
+    Average_Salary_USD,
+    CASE 
+        WHEN ABS(Average_Salary_USD - Avg_Salary) > 2 * StdDev_Salary THEN 'Outlier'
+        ELSE 'Normal'
+    END AS Salary_Status
+FROM 
+    SalaryStats;
+
+How does the salary range vary by industry or company size?
+
+SELECT 
+    Company,
+    MIN(Average_Salary_USD) AS Min_Salary,
+    MAX(Average_Salary_USD) AS Max_Salary,
+    AVG(Average_Salary_USD) AS Avg_Salary
+FROM 
+    Job_Dataset
+GROUP BY 
+    Company
+ORDER BY 
+    Company;
+
+Is there a correlation between education requirements and salary levels?
+
+SELECT 
+    Education_Requirements,
+    AVG(Average_Salary_USD) AS Avg_Salary
+FROM 
+    Job_Dataset
+GROUP BY 
+    Education_Requirements
+ORDER BY 
+    Avg_Salary DESC;
+
+
+
+
+
+
+
+Job Description Analysis:
+
+What are the most common keywords or phrases used in job descriptions?
+
+SELECT 
+    regexp_split_to_table(Job_description, E'\\s+') AS Keyword,
+    COUNT(*) AS Frequency
+FROM 
+    Job_Dataset
+CROSS JOIN 
+    regexp_split_to_table(Job_description, E'\\s+') AS words
+WHERE 
+    length(words) > 2
+GROUP BY 
+    Keyword
+ORDER BY 
+    Frequency DESC
+LIMIT 
+    10;
+
+Are there any patterns or trends in the language used to describe job requirements or responsibilities?
+
+
+SELECT 
+    word,
+    COUNT(*) AS frequency
+FROM 
+    (
+        SELECT 
+            regexp_split_to_table(Job_description, E'\\s+') AS word
+        FROM 
+            Job_Dataset
+    ) AS words
+WHERE 
+    length(word) > 2
+GROUP BY 
+    word
+ORDER BY 
+    frequency DESC
+LIMIT 
+    10;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Employment Type and Benefits Analysis:
+
+What proportion of job postings offer full-time vs. part-time employment?
+
+SELECT 
+    Employment_Type,
+    COUNT(*) AS Num_Postings,
+    ROUND(CAST(COUNT(*) AS numeric) / (SELECT COUNT(*) FROM Job_Dataset) * 100, 2) AS Proportion
+FROM 
+    Job_Dataset
+GROUP BY 
+    Employment_Type;
+
+What types of benefits are most commonly offered by employers?
+
+SELECT 
+    Benefits_and_works,
+    COUNT(*) AS Num_Postings
+FROM 
+    Job_Dataset
+WHERE 
+    Benefits_and_works IS NOT NULL
+GROUP BY 
+    Benefits_and_works
+ORDER BY 
+    Num_Postings DESC
+LIMIT 
+    10;
+
+
+Are there any trends in the prevalence of flexible work arrangements or employee perks?
+SELECT 
+    EXTRACT(YEAR FROM Date) AS Year,
+    COUNT(*) AS Num_Flexible_Work_Arrangements
+FROM 
+    Job_Dataset
+WHERE 
+    "Flexible_Work_Option" = 'Yes'
+GROUP BY 
+    EXTRACT(YEAR FROM Date)
+ORDER BY 
+    Year;
+
+
+
+
+Candidate Matching Analysis:
+
+How well do job requirements align with candidate profiles in terms of skills, experience, and education?
+Are there any mismatches or discrepancies between job postings and candidate resumes?
+Can we identify any patterns or trends in successful candidate placements based on historical data?
+
+
+
+
+Client Satisfaction Analysis:
+
+How satisfied are clients with the quality of candidates sourced through our recruitment services?
+Are there any factors that significantly impact client satisfaction, such as candidate fit or responsiveness?
+Can we identify opportunities to improve client engagement and retention based on feedback or performance metrics?
