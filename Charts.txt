@@ -1,0 +1,58 @@
+import pandas as pd
+
+# Assuming your DataFrame is named 'df'
+# Extracting all skills mentioned in the Skills_Required column
+all_skills = df['Skills_Required'].str.split(', ').explode().str.strip()
+
+# Calculating value counts for each skill
+skill_counts = all_skills.value_counts()
+
+# Selecting top 5 skills
+top_skills = skill_counts.head(5)
+
+# Updating the dictionary
+pie_chart = {
+    'labels': top_skills.index.tolist(),
+    'datasets': [{'label': 'Top Skills', 'data': top_skills.values.tolist()}]
+}
+
+print(pie_chart)
+
+
+# Filtering the DataFrame to include only rows where the top skills are mentioned
+top_skills_jobs = df[df['Skills_Required'].str.split(', ').explode().isin(top_skills.index)]
+
+# Counting the number of job postings for each skill
+top_skills_postings = top_skills_jobs['Skills_Required'].str.split(', ').explode().value_counts()
+
+# Updating the bar chart dictionary
+bar_chart = {
+    'labels': top_skills_postings.index.tolist(),
+    'datasets': [{'label': 'Job Postings', 'data': top_skills_postings.values.tolist()}]
+}
+
+print(bar_chart)
+
+
+
+
+
+# Assuming 'Date' column is in datetime format, if not convert it to datetime format
+df['Date'] = pd.to_datetime(df['Date'])
+
+# Extracting month and year from the 'Date' column
+df['Month'] = df['Date'].dt.to_period('M')
+
+# Filtering the DataFrame for the top skills
+top_skills_jobs = df[df['Skills_Required'].str.split(', ').explode().isin(top_skills.index)]
+
+# Counting the number of job postings for each month and skill
+monthly_skill_counts = top_skills_jobs.groupby(['Month', 'Skills_Required']).size().unstack(fill_value=0)
+
+# Updating the line chart dictionary
+line_chart = {
+    'labels': monthly_skill_counts.index.strftime('%Y-%m').tolist(),  # Convert period index to string format
+    'datasets': [{'label': skill, 'data': monthly_skill_counts[skill].tolist()} for skill in monthly_skill_counts.columns]
+}
+
+print(line_chart)
