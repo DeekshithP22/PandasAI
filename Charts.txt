@@ -254,3 +254,40 @@ filtered_df.reset_index(drop=True, inplace=True)
 # Print the filtered DataFrame
 print(filtered_df)
 
+
+
+
+
+
+# Convert the list of current skills to lowercase
+current_skills = [skill.lower() for skill in current_skills]
+
+# Initialize an empty DataFrame to store the filtered rows
+filtered_df = pd.DataFrame()
+
+# Iterate over each current skill
+for skill in current_skills:
+    # Create a boolean mask for rows where the current skill is mentioned
+    mask = df['Skills_Required'].str.lower().str.contains(skill, na=False)
+    # Append the rows matching the current skill to the filtered DataFrame
+    filtered_df = filtered_df.append(df[mask])
+
+# Convert the 'Date' column to datetime format
+filtered_df['Date'] = pd.to_datetime(filtered_df['Date'])
+
+# Extract month and year from the 'Date' column
+filtered_df['Month'] = filtered_df['Date'].dt.to_period('M')
+
+# Group by month, skill, and year, and count the number of job postings
+monthly_skill_postings = filtered_df.groupby(['Month', 'Skills_Required']).size().unstack(fill_value=0)
+
+# Keep only the top 5 skills columns
+monthly_skill_postings = monthly_skill_postings[top_skills_list]
+
+# Convert to dictionary for line chart
+line_chart = {
+    'labels': monthly_skill_postings.index.strftime('%Y-%m').tolist(),
+    'datasets': [{'label': skill, 'data': monthly_skill_postings[skill].tolist()} for skill in monthly_skill_postings.columns]
+}
+
+print(line_chart)
