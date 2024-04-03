@@ -44,6 +44,19 @@ print(pie_chart)
 
 
 
+# Filter the DataFrame to include only rows where the top skills are mentioned
+top_skills_jobs = df[df['Skills_Required'].str.contains('|'.join(top_skills.index), na=False)]
+
+# Count the number of job postings for each skill
+skill_postings_count = top_skills_jobs['Skills_Required'].str.split(', ').explode().value_counts()
+
+# Updating the dictionary for bar chart
+bar_chart = {
+    'labels': skill_postings_count.index.tolist(),
+    'datasets': [{'label': 'Job Postings', 'data': skill_postings_count.values.tolist()}]
+}
+
+print(bar_chart)
 
 
 
