@@ -1,3 +1,50 @@
+import pandas as pd
+
+# Read Excel file into DataFrame
+df = pd.read_excel('your_file.xlsx')
+
+# Split skills within each cell
+df['Skills_Required'] = df['Skills_Required'].str.split(',')
+
+# Explode the 'Skills_Required' column to create multiple rows for each skill
+df = df.explode('Skills_Required')
+
+# Extract month from 'Date' column
+df['Month'] = df['Date'].dt.month
+
+# Identify top 5 skills
+top_skills = df['Skills_Required'].value_counts().nlargest(5).index.tolist()
+
+# Filter DataFrame for job postings with top 5 skills
+filtered_df = df[df['Skills_Required'].isin(top_skills)]
+
+# Group by month and skill, then count job postings
+month_skill_counts = filtered_df.groupby(['Month', 'Skills_Required'])['Job_Title'].count()
+
+print(month_skill_counts)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Initialize an empty list to store labels (months)
 labels = []
 
