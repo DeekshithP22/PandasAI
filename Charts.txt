@@ -222,3 +222,35 @@ filtered_df.reset_index(drop=True, inplace=True)
 # Print the filtered DataFrame
 print(filtered_df)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Initialize an empty DataFrame to store the filtered rows
+filtered_df = pd.DataFrame()
+
+# Iterate over each top skill
+for skill in top_skills_list:
+    # Create a boolean mask for rows where the current skill is mentioned
+    mask = df['Skills_Required'].str.contains(skill, na=False)
+    # Append the rows matching the current skill to the filtered DataFrame
+    filtered_df = filtered_df.append(df[mask])
+
+    # Drop duplicate rows
+    filtered_df = filtered_df.drop_duplicates()
+
+# Reset the index of the filtered DataFrame
+filtered_df.reset_index(drop=True, inplace=True)
+
+# Print the filtered DataFrame
+print(filtered_df)
+
