@@ -1,3 +1,59 @@
+
+
+
+# Assuming you already have `month_skill_counts` calculated as a DataFrame
+# Convert month numbers to month names
+month_names = {1: 'January', 2: 'February', 3: 'March', 4: 'April', 5: 'May', 6: 'June', 7: 'July', 8: 'August', 9: 'September', 10: 'October', 11: 'November', 12: 'December'}
+
+# Initialize labels and datasets lists
+labels = []
+datasets = []
+
+# Iterate over months
+for month in range(1, 13):
+    month_name = month_names[month]
+    labels.append(month_name)
+    
+    # Filter month-wise skill counts
+    month_data = month_skill_counts[month_skill_counts.index.get_level_values('Month') == month]
+    
+    # Extract top 5 skills for the month
+    top_skills_month = month_data.groupby('Skills_Required').sum().nlargest(5).index.tolist()
+    
+    # Get counts of top 5 skills for the month
+    top_skills_counts = [month_data.loc[(month, skill),] if (month, skill) in month_data.index else 0 for skill in top_skills_month]
+    
+    # Append to datasets
+    datasets.append({'label': month_name, 'data': top_skills_counts})
+
+# Create line_chart dictionary
+line_chart = {'labels': labels, 'datasets': datasets}
+
+print(line_chart)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import pandas as pd
 
 # Read Excel file into DataFrame
