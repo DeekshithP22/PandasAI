@@ -19,6 +19,47 @@ pie_chart = {
 print(pie_chart)
 
 
+import re
+
+# Extracting all skills mentioned in the Skills_Required column using regular expressions
+all_skills = df['Skills_Required'].str.split(r', |; |\*|\n| ').explode().str.strip()
+
+# Calculating value counts for each skill
+skill_counts = all_skills.value_counts()
+
+# Selecting top 5 skills
+top_skills = skill_counts.head(5)
+
+# Updating the dictionary
+pie_chart = {
+    'labels': top_skills.index.tolist(),
+    'datasets': [{'label': 'Top Skills', 'data': top_skills.values.tolist()}]
+}
+
+print(pie_chart)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Filtering the DataFrame to include only rows where the top skills are mentioned
 top_skills_jobs = df[df['Skills_Required'].str.split(', ').explode().isin(top_skills.index)]
 
