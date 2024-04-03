@@ -75,6 +75,49 @@ bar_chart = {
 print(bar_chart)
 
 
+# Filtering the DataFrame to include only rows where the top skills are mentioned
+top_skills_jobs = df[df['Skills_Required'].str.split(', ').explode().isin(top_skills.index)]
+
+# Check if top_skills_jobs DataFrame is not empty
+if not top_skills_jobs.empty:
+    # Counting the number of job postings for each skill
+    top_skills_postings = top_skills_jobs['Skills_Required'].str.split(', ').explode().value_counts()
+
+    # Check if top_skills_postings Series is not empty
+    if not top_skills_postings.empty:
+        # Updating the bar chart dictionary
+        bar_chart = {
+            'labels': top_skills_postings.index.tolist(),
+            'datasets': [{'label': 'Job Postings', 'data': top_skills_postings.values.tolist()}]
+        }
+        print(bar_chart)
+    else:
+        print("No job postings found for top skills.")
+else:
+    print("No rows found for top skills.")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
