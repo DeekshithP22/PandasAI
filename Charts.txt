@@ -1,3 +1,88 @@
+# Initialize an empty list to store labels (months)
+labels = []
+
+# Initialize an empty dictionary to store data (counts of job postings for each skill)
+datasets = {}
+
+# Iterate over each top skill
+for skill in top_skills_list:
+    # Filter the DataFrame to include only rows where the current skill is mentioned
+    skill_jobs = filtered_df[filtered_df['Skills_Required'].str.lower().str.contains(skill)]
+
+    # Convert the 'Date' column to datetime format
+    skill_jobs['Date'] = pd.to_datetime(skill_jobs['Date'])
+
+    # Extract month and year from the 'Date' column
+    skill_jobs['Month'] = skill_jobs['Date'].dt.to_period('M')
+
+    # Group by month and count the number of job postings
+    monthly_counts = skill_jobs.groupby('Month').size()
+
+    # Store the month labels
+    labels.extend(monthly_counts.index.strftime('%Y-%m'))
+
+    # Store the counts of job postings for the current skill
+    datasets[skill] = monthly_counts.tolist()
+
+# Remove duplicate labels
+labels = list(set(labels))
+
+# Sort labels in ascending order
+labels.sort()
+
+# Initialize an empty list to store datasets
+datasets_list = []
+
+# Iterate over each skill
+for skill in top_skills_list:
+    # Initialize an empty list for the counts of job postings
+    skill_data = []
+
+    # Populate the list with counts for each month, filling in 0 for missing months
+    for label in labels:
+        if label in datasets[skill]:
+            skill_data.append(datasets[skill][datasets[skill].index(label)])
+        else:
+            skill_data.append(0)
+
+    # Append the data for the current skill to the datasets list
+    datasets_list.append({'label': skill, 'data': skill_data})
+
+# Convert to dictionary for line chart
+line_chart = {
+    'labels': labels,
+    'datasets': datasets_list
+}
+
+print(line_chart)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import pandas as pd
 
 # Assuming your DataFrame is named 'df'
