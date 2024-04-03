@@ -335,3 +335,75 @@ line_chart = {
 }
 
 print(line_chart)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Initialize an empty dictionary to store monthly job postings for each top skill
+monthly_job_postings = {}
+
+# Iterate over each top skill
+for skill in top_skills_list:
+    # Filter the DataFrame to include only rows where the current skill is mentioned
+    skill_jobs = filtered_df[filtered_df['Skills_Required'].str.lower().str.contains(skill)]
+
+    # Convert the 'Date' column to datetime format
+    skill_jobs['Date'] = pd.to_datetime(skill_jobs['Date'])
+
+    # Extract month and year from the 'Date' column
+    skill_jobs['Month'] = skill_jobs['Date'].dt.to_period('M')
+
+    # Group by month and count the number of job postings
+    monthly_counts = skill_jobs.groupby('Month').size()
+
+    # Store the monthly job postings for the current skill
+    monthly_job_postings[skill] = monthly_counts
+
+# Initialize an empty DataFrame to store the aggregated monthly job postings for the top 5 skills
+aggregated_monthly_job_postings = pd.DataFrame()
+
+# Concatenate the monthly job postings for the top 5 skills into a single DataFrame
+for skill, monthly_counts in monthly_job_postings.items():
+    aggregated_monthly_job_postings[skill] = monthly_counts
+
+# Fill missing values with 0
+aggregated_monthly_job_postings.fillna(0, inplace=True)
+
+# Convert index to string format
+aggregated_monthly_job_postings.index = aggregated_monthly_job_postings.index.astype(str)
+
+# Convert to dictionary for line chart
+line_chart = {
+    'labels': aggregated_monthly_job_postings.index.tolist(),
+    'datasets': [{'label': skill, 'data': aggregated_monthly_job_postings[skill].tolist()} for skill in aggregated_monthly_job_postings.columns]
+}
+
+print(line_chart)
