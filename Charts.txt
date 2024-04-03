@@ -153,3 +153,52 @@ line_chart = {
 }
 
 print(line_chart)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Filter the DataFrame to include only rows where the top 5 skills are mentioned
+top_skills_jobs = df[df['Skills_Required'].str.contains('|'.join(top_skills_list), na=False)]
+
+# Convert the 'Date' column to datetime format
+top_skills_jobs['Date'] = pd.to_datetime(top_skills_jobs['Date'])
+
+# Extract month and year from the 'Date' column
+top_skills_jobs['Month'] = top_skills_jobs['Date'].dt.to_period('M')
+
+# Group by month and skill, and count the number of job postings
+monthly_skill_postings = top_skills_jobs.groupby(['Month', 'Skills_Required']).size().unstack(fill_value=0)
+
+# Keep only the top 5 skills columns
+monthly_skill_postings = monthly_skill_postings[top_skills_list]
+
+# Convert to dictionary for line chart
+line_chart = {
+    'labels': monthly_skill_postings.index.strftime('%Y-%m').tolist(),
+    'datasets': [{'label': skill, 'data': monthly_skill_postings[skill].tolist()} for skill in monthly_skill_postings.columns]
+}
+
+print(line_chart)
