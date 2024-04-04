@@ -1,4 +1,35 @@
 SELECT 
+    focus_area,
+    COUNT(*) AS count,
+    ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM job_data), 2) AS percentage
+FROM (
+    SELECT 
+        TRIM(focus_area) AS focus_area
+    FROM 
+        job_data,
+        unnest(string_to_array(Employee_Research_Focus_Areas, ',')) AS focus_area
+) AS subquery
+GROUP BY 
+    focus_area
+ORDER BY 
+    count DESC;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SELECT 
     Employee_Research_Focus_Areas,
     focus_area,
     COUNT(*) AS count,
