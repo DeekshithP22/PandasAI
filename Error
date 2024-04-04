@@ -1,3 +1,19 @@
+Date,Job_Title,Company,Location,Country,Experience_Level,Skills_Required,Education_Requirements,Minimum_Salary,
+Maximum_Salary,Avearge_Salary,Salary_Currency,Average_Salary_USD,Employment_Type,Remote_Work_Option,Benefits_and_PerksJob_Description  i already have excel data for these column names  i want still more data, please stick to my column names and provide me with more data please include Various Job_Titles and in Skills_Required please seperate each skill by comma...give me some 100 rows of data for the above column values
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import pandas as pd
 
 df = pd.read_csv(r'C:\Users\deekshith.p\Desktop\Job_Dataset.csv', encoding='utf-8')
