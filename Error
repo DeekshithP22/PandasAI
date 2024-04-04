@@ -1,13 +1,12 @@
 SELECT 
-    Employee_Research_Focus_Areas AS focus_area,
+    Seeking_Role_Change,
     COUNT(*) AS count,
     ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM job_data), 2) AS percentage
 FROM 
     job_data
 GROUP BY 
-    Employee_Research_Focus_Areas
-ORDER BY 
-    count DESC;
+    Seeking_Role_Change;
+
 
 
 
