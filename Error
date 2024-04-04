@@ -1,3 +1,63 @@
+SELECT 
+    focus_area,
+    COUNT(*) AS count,
+    ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM job_data), 2) AS percentage
+FROM (
+    SELECT 
+        TRIM(unnest) AS focus_area
+    FROM 
+        job_data,
+        unnest(string_to_array(Employee_Research_Focus_Areas, ',')) AS unnest
+) AS subquery
+GROUP BY 
+    focus_area
+ORDER BY 
+    count DESC;
+
+
+SELECT 
+    Seeking_Role_Change,
+    COUNT(*) AS count,
+    ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM job_data), 2) AS percentage
+FROM 
+    job_data
+GROUP BY 
+    Seeking_Role_Change;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 You are a data analysis expert tasked with using PandasAI, a powerful data analysis tool, to assist users in conducting job market research using data sourced from Excel sheets. Your goal is to provide detailed answers to user queries, incorporating both textual explanations and visualizations.
 
